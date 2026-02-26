@@ -76,7 +76,7 @@ The app will be available at `http://localhost:8000`.
 
 ---
 
-## 🕷️ Running the Scraper
+##  Running the Scraper
 
 To manually trigger a scrape, run the appropriate Django management command:
 
