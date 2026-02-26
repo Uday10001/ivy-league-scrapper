@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IvyIntel — Ivy League Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0b0c10;
+      --surface:  #111318;
+      --surface2: #181c24;
+      --border:   rgba(255,255,255,.07);
+      --crimson:  #c0392b;
+      --gold:     #d4a843;
+      --gold-l:   #f0c060;
+      --text:     #e8e8e8;
+      --muted:    #7a8090;
+      --accent:   #4e9af1;
+      --radius:   12px;
+      --serif:    'Playfair Display', Georgia, serif;
+      --sans:     'Inter', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; }
+
+    /* grain overlay */
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+      background-size: 200px; opacity: .4;
+    }
+
+    .wrap { position: relative; z-index: 1; max-width: 1340px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg,rgba(11,12,16,.97),rgba(17,19,24,.93));
+      backdrop-filter: blur(14px); position: sticky; top: 0; z-index: 100;
+    }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; gap: 16px; flex-wrap: wrap; }
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg,var(--crimson),#7a0000);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--serif); font-size: 19px; font-weight: 700; color:#fff;
+      box-shadow: 0 4px 16px rgba(192,57,43,.4);
+    }
+    .logo-name { font-family: var(--serif); font-size: 21px; font-weight: 700; background: linear-gradient(90deg,var(--gold),var(--gold-l)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; }
+    .logo-sub  { font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+
+    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .uni-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 20px;
+      padding: 5px 13px; font-size: 12px; font-weight: 500; color: var(--muted);
+      cursor: pointer; transition: all .2s; white-space: nowrap;
+    }
+    .pill:hover { border-color: var(--gold); color: var(--gold); }
+
+    .btn-scrape-all {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 18px; border-radius: 8px; border: none;
+      background: linear-gradient(135deg,var(--crimson),#8b1a1a); color:#fff;
+      font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(192,57,43,.35); transition: all .2s; white-space: nowrap;
+    }
+    .btn-scrape-all:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(192,57,43,.5); }
+    .btn-scrape-all.loading { opacity: .7; pointer-events: none; }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 56px 0 40px; text-align: center;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%,rgba(192,57,43,.07) 0%,transparent 70%);
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(212,168,67,.08); border: 1px solid rgba(212,168,67,.2);
+      border-radius: 20px; padding: 4px 14px;
+      font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: 18px;
+    }
+    .hero-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .hero h1 { font-family: var(--serif); font-size: clamp(32px,4.5vw,56px); font-weight: 700; line-height: 1.15; margin-bottom: 14px; }
+    .hero h1 em { font-style: normal; color: var(--gold); }
+    .hero p { max-width: 500px; margin: 0 auto 28px; color: var(--muted); font-size: 15px; }
+
+    /* ── Stats ── */
+    .stats-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 44px; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 18px 26px; text-align: center; min-width: 120px; transition: border-color .2s;
+    }
+    .stat-card:hover { border-color: rgba(212,168,67,.3); }
+    .stat-num { font-family: var(--serif); font-size: 28px; font-weight: 700; background: linear-gradient(135deg,var(--gold),var(--gold-l)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .07em; }
+
+    /* ── Filters ── */
+    .filters { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 22px; margin-bottom: 28px; }
+    .filters form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); width: 15px; height: 15px; }
+    input[type="text"], select {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-family: var(--sans); font-size: 14px; padding: 8px 12px; outline: none; transition: border-color .2s;
+    }
+    input[type="text"] { padding-left: 34px; width: 100%; }
+    input[type="text"]:focus, select:focus { border-color: var(--gold); }
+    select option { background: var(--surface2); }
+    .btn-filter {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all .2s; text-decoration: none;
+    }
+    .btn-filter:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 13px 18px; font-size: 14px; box-shadow: 0 8px 32px rgba(0,0,0,.5); max-width: 360px;
+      transform: translateY(16px); opacity: 0; transition: all .3s ease; pointer-events: none;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-color: rgba(46,213,115,.4); color: #2ed573; }
+    #toast.error   { border-color: rgba(192,57,43,.5); color: #e74c3c; }
+
+    /* ── Cards ── */
+    .section-title {
+      font-family: var(--serif); font-size: 20px; font-weight: 600; margin-bottom: 18px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg,var(--border),transparent); }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 16px; margin-bottom: 56px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; display: flex; flex-direction: column; gap: 10px;
+      transition: all .25s; position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg,var(--uni-color, var(--crimson)),transparent); opacity: 0; transition: opacity .25s;
+    }
+    .card:hover { border-color: rgba(255,255,255,.12); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,.4); }
+    .card:hover::before { opacity: 1; }
+
+    .card-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .badge-uni {
+      padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    }
+    /* University badge colours */
+    .badge-Harvard   { background:rgba(165,28,48,.18);  color:#e05263; border:1px solid rgba(165,28,48,.3);  --uni-color:#a51c30; }
+    .badge-MIT       { background:rgba(163,31,52,.18);  color:#e05263; border:1px solid rgba(163,31,52,.3);  --uni-color:#a31f34; }
+    .badge-Yale      { background:rgba(0,53,148,.18);   color:#5b9af5; border:1px solid rgba(0,53,148,.3);   --uni-color:#003594; }
+    .badge-Princeton { background:rgba(255,130,0,.12);  color:#f5a041; border:1px solid rgba(255,130,0,.25); --uni-color:#ff8200; }
+    .badge-Columbia  { background:rgba(11,68,172,.18);  color:#5b9af5; border:1px solid rgba(11,68,172,.3);  --uni-color:#0b44ac; }
+    .badge-Cornell   { background:rgba(179,27,27,.16);  color:#e06060; border:1px solid rgba(179,27,27,.28); --uni-color:#b31b1b; }
+    .badge-Brown     { background:rgba(78,42,132,.18);  color:#a27de0; border:1px solid rgba(78,42,132,.3);  --uni-color:#4e2a84; }
+    .badge-Dartmouth { background:rgba(0,105,62,.16);   color:#4dbb8a; border:1px solid rgba(0,105,62,.28);  --uni-color:#00693e; }
+
+    .badge-type { color: var(--muted); font-size: 11px; }
+    .card-date  { margin-left: auto; color: var(--muted); font-size: 11px; }
+
+    .card-title a {
+      font-family: var(--serif); font-size: 16px; font-weight: 600; line-height: 1.45; color: var(--text); text-decoration: none;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .card-title a:hover { color: var(--gold); }
+
+    .card-desc {
+      font-size: 13px; color: var(--muted); line-height: 1.55;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .card-footer { margin-top: auto; display: flex; align-items: center; justify-content: flex-end; }
+    .card-link { font-size: 12px; font-weight: 500; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 4px; transition: gap .18s; }
+    .card-link:hover { gap: 8px; }
+
+    /* ── Empty ── */
+    .empty { text-align: center; padding: 80px 24px; grid-column: 1/-1; }
+    .empty-icon { font-size: 44px; margin-bottom: 14px; opacity: .35; }
+    .empty h3 { font-family: var(--serif); font-size: 20px; margin-bottom: 8px; }
+    .empty p  { color: var(--muted); max-width: 360px; margin: 0 auto; }
+
+    /* ── Spinner ── */
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* ── Footer ── */
+    footer { border-top: 1px solid var(--border); padding: 26px 0; text-align: center; color: var(--muted); font-size: 12px; }
+    footer span { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="wrap">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div class="logo-icon">𝕀</div>
+        <div>
+          <div class="logo-name">IvyIntel</div>
+          <div class="logo-sub">Intelligence Platform</div>
+        </div>
+      </a>
+
+      <div class="header-right">
+        <div class="uni-pills">
+          {% for uni in universities %}
+          <button class="pill" onclick="scrape('{{ uni }}')">{{ uni }}</button>
+          {% endfor %}
+        </div>
+        <button class="btn-scrape-all" id="scrapeAllBtn" onclick="scrape('')">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Scrape All
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-eyebrow"><span class="hero-dot"></span> Live Intelligence Feed</div>
+    <h1>Track <em>Ivy League</em> Opportunities<br>In Real Time</h1>
+    <p>Automatically aggregated news, research, and events from Harvard, MIT, Yale, Princeton, Columbia, Cornell, Brown & Dartmouth.</p>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">{{ total_count }}</div>
+        <div class="stat-label">Total Items</div>
+      </div>
+      {% for s in stats %}
+      <div class="stat-card">
+        <div class="stat-num">{{ s.count }}</div>
+        <div class="stat-label">{{ s.university }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <div class="filters">
+    <form method="GET" action="/">
+      <div class="search-wrap">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="q" placeholder="Search titles…" value="{{ query }}" />
+      </div>
+      <select name="university">
+        <option value="">All Universities</option>
+        {% for uni in universities %}
+        <option value="{{ uni }}" {% if uni_filter == uni %}selected{% endif %}>{{ uni }}</option>
+        {% endfor %}
+      </select>
+      <select name="source_type">
+        <option value="">All Types</option>
+        {% for st in source_types %}
+        <option value="{{ st }}" {% if type_filter == st %}selected{% endif %}>{{ st|capfirst }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn-filter">Filter</button>
+      {% if query or uni_filter or type_filter %}
+      <a href="/" class="btn-filter">✕ Clear</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Cards -->
+  <h2 class="section-title">Latest Opportunities</h2>
+  <div class="cards-grid">
+    {% for opp in opportunities %}
+    <article class="card">
+      <div class="card-meta">
+        <span class="badge-uni badge-{{ opp.university }}">{{ opp.university }}</span>
+        <span class="badge-type">{{ opp.source_type|capfirst }}</span>
+        <span class="card-date">{{ opp.created_at|date:"M d" }}</span>
+      </div>
+      <div class="card-title">
+        <a href="{{ opp.url }}" target="_blank" rel="noopener">{{ opp.title }}</a>
+      </div>
+      {% if opp.description %}
+      <p class="card-desc">{{ opp.description|striptags }}</p>
+      {% endif %}
+      <div class="card-footer">
+        <a href="{{ opp.url }}" target="_blank" rel="noopener" class="card-link">Read more →</a>
+      </div>
+    </article>
+    {% empty %}
+    <div class="empty">
+      <div class="empty-icon">🔍</div>
+      <h3>No results yet</h3>
+      <p>Click a university pill or "Scrape All" to pull live data from verified RSS feeds.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<footer>
+  <div class="wrap">
+    IvyIntel · Data sourced from official public RSS feeds · Built with <span>♥</span>
+  </div>
+</footer>
+
+<script>
+  const toast = document.getElementById('toast');
+  function showToast(msg, type='success') {
+    toast.textContent = msg;
+    toast.className = `show ${type}`;
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => { toast.className = ''; }, 5000);
+  }
+
+  function scrape(university) {
+    const btn = document.getElementById('scrapeAllBtn');
+    const label = university || 'All';
+    btn.classList.add('loading');
+    btn.innerHTML = '<span class="spinner"></span> Scraping ' + label + '…';
+
+    const fd = new FormData();
+    fd.append('university', university);
+    fd.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+    fetch('/scrape/', { method: 'POST', body: fd })
+      .then(r => r.json())
+      .then(data => {
+        showToast(data.message, data.status === 'ok' ? 'success' : 'error');
+        if (data.status === 'ok') setTimeout(() => location.reload(), 2200);
+      })
+      .catch(err => showToast('Network error: ' + err, 'error'))
+      .finally(() => {
+        btn.classList.remove('loading');
+        btn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Scrape All';
+      });
+  }
+
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : '';
+  }
+</script>
+</body>
+</html>
