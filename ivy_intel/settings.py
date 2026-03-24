@@ -32,6 +32,7 @@ SECRET_KEY = env('SECRET_KEY', default="django-insecure-=mrq6k^p!=3a43myx9gk46h1
 DEBUG = env('DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.up.railway.app']
 
 
 # Application definition

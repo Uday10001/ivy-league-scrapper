@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count
 from .models import Opportunity
 from .logic import IvyScraper, SOURCES
@@ -49,6 +50,7 @@ def dashboard(request):
     return render(request, "scraper/dashboard.html", context)
 
 
+@csrf_exempt
 @require_POST
 def trigger_scrape(request):
     university = request.POST.get("university", "").strip()
