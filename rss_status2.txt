@@ -1,0 +1,5 @@
+https://www.princeton.edu/feed: 200
+https://news.columbia.edu/rss.xml: 403
+https://www.brown.edu/news/feed: 404
+https://news.dartmouth.edu/feed: 200
+https://home.dartmouth.edu/news/feed: 404

@@ -7,7 +7,13 @@ from .logic import IvyScraper, SOURCES
 
 UNIVERSITIES = list(SOURCES.keys())
 
-
+SOURCE_TYPE_LABELS = {
+    "job": "Staff & Faculty Jobs",
+    "fellowship": "Fellowships & Grants",
+    "internship": "Internships",
+    "research_position": "Research & Postdoc",
+    "academic_position": "Academic Positions",
+}
 def dashboard(request):
     query      = request.GET.get("q", "").strip()
     uni_filter = request.GET.get("university", "")
@@ -38,7 +44,7 @@ def dashboard(request):
         "query": query,
         "uni_filter": uni_filter,
         "type_filter": type_filter,
-        "source_types": Opportunity.objects.values_list("source_type", flat=True).distinct(),
+        "source_types": SOURCE_TYPE_LABELS,
     }
     return render(request, "scraper/dashboard.html", context)
 

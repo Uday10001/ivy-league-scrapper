@@ -1,0 +1,27 @@
+System check identified some issues:
+
+WARNINGS:
+scraper.Opportunity: (models.W042) Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
+	HINT: Configure the DEFAULT_AUTO_FIELD setting or the ScraperConfig.default_auto_field attribute to point to a subclass of AutoField, e.g. 'django.db.models.BigAutoField'.
+Traceback (most recent call last):
+  File "A:\Study\LPU pep classes\python28\Ivy League\DJANGO_ALT\any\ivy-league-scrapper\manage.py", line 22, in <module>
+    main()
+  File "A:\Study\LPU pep classes\python28\Ivy League\DJANGO_ALT\any\ivy-league-scrapper\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "A:\Study\LPU pep classes\python28\Ivy League\DJANGO_ALT\any\ivy-league-scrapper\env\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+    utility.execute()
+  File "A:\Study\LPU pep classes\python28\Ivy League\DJANGO_ALT\any\ivy-league-scrapper\env\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "A:\Study\LPU pep classes\python28\Ivy League\DJANGO_ALT\any\ivy-league-scrapper\env\Lib\site-packages\django\core\management\base.py", line 413, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "A:\Study\LPU pep classes\python28\Ivy League\DJANGO_ALT\any\ivy-league-scrapper\env\Lib\site-packages\django\core\management\base.py", line 459, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "A:\Study\LPU pep classes\python28\Ivy League\DJANGO_ALT\any\ivy-league-scrapper\scraper\management\commands\run_scrape.py", line 15, in handle
+    self.stdout.write(self.style.WARNING('\u2500\u2500\u2500 IvyIntel Scrape \u2500\u2500\u2500'))
+  File "A:\Study\LPU pep classes\python28\Ivy League\DJANGO_ALT\any\ivy-league-scrapper\env\Lib\site-packages\django\core\management\base.py", line 181, in write
+    self._out.write(style_func(msg))
+  File "C:\Users\udays\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-2: character maps to <undefined>

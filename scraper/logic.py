@@ -3,7 +3,10 @@ import time
 import random
 import logging
 import requests
+import urllib3
+urllib3.disable_warnings()
 from bs4 import BeautifulSoup
+from django.db import IntegrityError
 from .models import Opportunity
 
 logger = logging.getLogger(__name__)
@@ -20,18 +23,28 @@ COMMON_HEADERS = {
     ),
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9",
-    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Encoding": "gzip, deflate",
     "DNT": "1",
     "Connection": "keep-alive",
 }
+OPPORTUNITY_KEYWORDS = {
+    "job", "position", "opening", "hiring", "career", "apply",
+    "fellowship", "internship", "postdoc", "postdoctoral", "research assistant",
+    "grant", "scholarship", "opportunity", "vacancy", "appointment",
+    "lecturer", "professor", "faculty", "associate", "analyst", "engineer",
+    "coordinator", "administrator", "director", "officer", "specialist",
+}
 
+def _is_opportunity(title, description=""):
+    text = (title + " " + description).lower()
+    return any(kw in text for kw in OPPORTUNITY_KEYWORDS)
 
 def _save_item(title, link, university_name, source_type="news_event", description=""):
     """Persist a single scraped item; returns True if newly created."""
     if not title or not link:
         return False
     # Normalise relative URLs
-    if link.startswith("/"):
+    if link and not  link.startswith("http"):
         base_map = {
             "Harvard":   "https://news.harvard.edu",
             "Yale":      "https://news.yale.edu",
@@ -45,18 +58,22 @@ def _save_item(title, link, university_name, source_type="news_event", descripti
         }
         base = base_map.get(university_name, "")
         link = base + link
+        
     content_hash = hashlib.sha256(f"{title}{link}".encode()).hexdigest()
-    _, created = Opportunity.objects.get_or_create(
-        content_hash=content_hash,
-        defaults={
-            "title": title[:500],
-            "url": link,
-            "university": university_name,
-            "source_type": source_type,
-            "description": description[:1000],
-        },
-    )
-    return created
+    try:
+        _, created = Opportunity.objects.get_or_create(
+            content_hash=content_hash,
+            defaults={
+                "title": title[:500],
+                "url": link,
+                "university": university_name,
+                "source_type": source_type,
+                "description": description[:1000],
+            },
+        )
+        return created
+    except IntegrityError:
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -78,7 +95,7 @@ def _scrape_rss(feed_url, university_name, source_type="news_event"):
     # Some servers need an explicit Accept header for RSS/XML
     session.headers["Accept"] = "application/rss+xml, application/xml, text/xml, */*"
 
-    resp = session.get(feed_url, timeout=25, allow_redirects=True)
+    resp = session.get(feed_url, timeout=25, allow_redirects=True, verify=False)
     resp.raise_for_status()
 
     # ElementTree chokes on encoding declarations sometimes; decode manually
@@ -86,9 +103,15 @@ def _scrape_rss(feed_url, university_name, source_type="news_event"):
 
     try:
         root = ET.fromstring(content)
-    except ET.ParseError as e:
-        logger.error("XML parse error for %s: %s", feed_url, e)
-        return 0
+    except ET.ParseError:
+        # Some feeds embed raw HTML entities or unescaped ampersands.
+        # Re-parse with BeautifulSoup's lenient XML parser as fallback.
+        try:
+            soup_xml = BeautifulSoup(content, "lxml-xml")
+            root = ET.fromstring(str(soup_xml))
+        except Exception as e2:
+            logger.error("XML parse error for %s (both parsers failed): %s", feed_url, e2)
+            return 0
 
     # Namespace map — cover common cases
     ns = {
@@ -259,13 +282,7 @@ SOURCES = {
             "url": "https://news.harvard.edu/gazette/feed",
             "type": "rss",
             "source_type": "news_event",
-            "label": "Harvard Gazette (all stories)",
-        },
-        {
-            "url": "https://news.harvard.edu/gazette/section/science-technology/feed/",
-            "type": "rss",
-            "source_type": "research",
-            "label": "Harvard Gazette (Science & Tech)",
+            "label": "Harvard Gazette",
         },
     ],
     "MIT": [
@@ -273,13 +290,7 @@ SOURCES = {
             "url": "https://news.mit.edu/rss/feed",
             "type": "rss",
             "source_type": "news_event",
-            "label": "MIT News (all)",
-        },
-        {
-            "url": "https://news.mit.edu/topic/mitresearch-rss.xml",
-            "type": "rss",
-            "source_type": "research",
-            "label": "MIT News (research)",
+            "label": "MIT News",
         },
     ],
     "Yale": [
@@ -287,13 +298,7 @@ SOURCES = {
             "url": "https://news.yale.edu/news-rss",
             "type": "rss",
             "source_type": "news_event",
-            "label": "Yale News (all topics)",
-        },
-        {
-            "url": "https://news.yale.edu/topics/science-technology/rss",
-            "type": "rss",
-            "source_type": "research",
-            "label": "Yale News (Science & Tech)",
+            "label": "Yale News",
         },
     ],
     "Princeton": [
@@ -301,56 +306,26 @@ SOURCES = {
             "url": "https://www.princeton.edu/feed",
             "type": "rss",
             "source_type": "news_event",
-            "label": "Princeton University News",
+            "label": "Princeton News",
         },
     ],
-    "Columbia": [
+    "Cornell": [
         {
-            "url": "https://www.columbiaspectator.com/news/feed/",
+            "url": "https://news.cornell.edu/rss",
             "type": "rss",
             "source_type": "news_event",
-            "label": "Columbia Spectator News",
+            "label": "Cornell Chronicle",
         },
     ],
-"Cornell": [
+    "Dartmouth": [
         {
-            "url": "https://news.cornell.edu/taxonomy/term/81/feed",
+            "url": "https://news.dartmouth.edu/feed",
             "type": "rss",
             "source_type": "news_event",
-            "label": "Cornell Chronicle (News & Events)",
-        },
-        {
-            "url": "https://news.cornell.edu/taxonomy/term/24043/feed",
-            "type": "rss",
-            "source_type": "research",
-            "label": "Cornell Chronicle (AI & Tech)",
-        },
-    ],
-"Brown": [
-        {
-            # Brown has no public RSS — scrape the listing page directly
-            "url": "https://www.brown.edu/news/all",
-            "type": "html",
-            "list_selector": "h3.news-teaser__title, .views-row h3, article h3, h3",
-            "title_selector": "a",
-            "source_type": "news_event",
-            "label": "Brown University News (HTML)",
-        },
-    ],
-"Dartmouth": [
-        {
-            # Dartmouth has no public RSS — scrape the news listing directly
-            "url": "https://home.dartmouth.edu/news",
-            "type": "html",
-            "list_selector": "article, h3.node__title, h2.node__title",
-            "title_selector": "a",
-            "source_type": "news_event",
-            "label": "Dartmouth News (HTML)",
+            "label": "Dartmouth News",
         },
     ],
 }
-
-
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
