@@ -1,6 +1,8 @@
 # Web Framework
 django==5.0.2
 django-environ==0.11.2
+gunicorn
+whitenoise
 
 # Database
 psycopg2-binary==2.9.9
