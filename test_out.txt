@@ -1,7 +1,0 @@
-DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): www.higheredjobs.com:443
-DEBUG:urllib3.connectionpool:https://www.higheredjobs.com:443 "GET /search/rss.cfm?Institution=Harvard+University HTTP/1.1" 302 0
-DEBUG:urllib3.connectionpool:https://www.higheredjobs.com:443 "GET /search/ HTTP/1.1" 200 None
-DEBUG:charset_normalizer:Encoding detection: utf_8 is most likely the one.
-INFO:scraper.logic:Harvard via HigherEdJobs \u2192 0 new items
-Scraping Harvard:
-Harvard items: 0

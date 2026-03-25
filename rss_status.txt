@@ -1,9 +1,0 @@
-https://news.harvard.edu/gazette/feed: 200
-https://news.mit.edu/rss/feed: 200
-https://news.yale.edu/news-rss: 200
-https://www.princeton.edu/feed: ERROR HTTPSConnectionPool(host='www.princeton.edu', port=443): Max retries exceeded with url: /feed (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1000)')))
-https://news.columbia.edu/rss.xml: 403
-https://news.cornell.edu/rss: 200
-https://news.brown.edu/feed: 404
-https://home.dartmouth.edu/feeds/news: 404
-https://news.dartmouth.edu/rss/feed: 404
